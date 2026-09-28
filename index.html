@@ -14,6 +14,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
+<meta name="application-version" content="1.1.1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiQXN0aG1hLVRhZ2VidWNoIiwic2hvcnRfbmFtZSI6IkFzdGhtYSIsInN0YXJ0X3VybCI6Ii4vIiwic2NvcGUiOiIuLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwib3JpZW50YXRpb24iOiJhbnkiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI0YzRjFFRCIsInRoZW1lX2NvbG9yIjoiIzJENTU0NiIsImxhbmciOiJkZSIsImRlc2NyaXB0aW9uIjoiUGVhay1GbG93LCBTeW1wdG9tZSwgQmVkYXJmc21lZGlrYXRpb24gdW5kIEF1c3dlcnR1bmcg4oCTIERhdGVuIGJsZWliZW4gbG9rYWwgYXVmIGRlbSBHZXLDpHQuIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTV2Y21jdk1qQXdNQzl6ZG1jaUlIWnBaWGRDYjNnOUlqQWdNQ0ExTVRJZ05URXlJajQ4Y21WamRDQjNhV1IwYUQwaU5URXlJaUJvWldsbmFIUTlJalV4TWlJZ2NuZzlJakV4TWlJZ1ptbHNiRDBpSXpKRU5UVTBOaUl2UGp4d1lYUm9JR1E5SWswMk5DQXpNREJqTlRNZ01DQTJOQzB4TURZZ01URTNMVEV3Tm5NMU15QXhORGdnTVRBMklERTBPQ0ExTXkweE9UQWdNVEEyTFRFNU1DQTFOU0E0TlNBMU5TQTROU0lnWm1sc2JEMGlibTl1WlNJZ2MzUnliMnRsUFNJalptWm1JaUJ6ZEhKdmEyVXRkMmxrZEdnOUlqTTBJaUJ6ZEhKdmEyVXRiR2x1WldOaGNEMGljbTkxYm1RaUlITjBjbTlyWlMxc2FXNWxhbTlwYmowaWNtOTFibVFpTHo0OEwzTjJaejQ9Iiwic2l6ZXMiOiJhbnkiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCIsInB1cnBvc2UiOiJhbnkifV19">
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzJENTU0NiIvPjxwYXRoIGQ9Ik0yMiAxMDZjMTkgMCAyMi0zNyA0MS0zN3MxOSA1MiAzNyA1MiAxOS02NyAzNy02NyAyMCAzMCAyMCAzMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=">
 <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzJENTU0NiIvPjxwYXRoIGQ9Ik0yMiAxMDZjMTkgMCAyMi0zNyA0MS0zN3MxOSA1MiAzNyA1MiAxOS02NyAzNy02NyAyMCAzMCAyMCAzMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=">
@@ -418,6 +419,15 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
 .list-row .grow{flex:1; min-width:0}
 .list-row .nm{font-size:14px; font-weight:600}
 .list-row .ds{font-size:12px; color:var(--ink-3)}
+
+/* Versionsanzeige */
+.verbox{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  background:var(--surface-2); border:1px solid var(--line);
+  border-radius:var(--r-m); padding:13px 15px;
+}
+.verbox .vgrow{flex:1; min-width:150px}
+.vernum{font-size:19px; font-weight:700; letter-spacing:-.02em; line-height:1.15}
 
 /* Hilfe: Verweiszeile, Schrittfolge, Aufklappfragen */
 .linkrow{
@@ -970,7 +980,15 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
 
       <div class="card">
         <div class="card-head"><h2>Über diese App</h2></div>
-        <p class="hint" id="aboutText"></p>
+        <div class="verbox">
+          <div class="vgrow">
+            <div class="vernum num" id="verNum">–</div>
+            <div class="hint" id="verDate">–</div>
+          </div>
+          <button class="btn sm" id="btnReloadApp" type="button">Aktualisierung suchen</button>
+        </div>
+        <p class="hint" style="margin-top:10px">„Aktualisierung suchen" lädt die App unter Umgehung des Zwischenspeichers neu. Ihre Eintragungen bleiben dabei erhalten.</p>
+        <p class="hint" id="aboutText" style="margin-top:12px"></p>
       </div>
     </section>
 
@@ -1199,6 +1217,17 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
           <details><summary>Ein Doppelklick auf die Datei zeigt nur eine Fehlermeldung.</summary><div class="a">
             <p>Richtig — die App muss über eine Adresse mit <code>https://</code> aufgerufen werden. Beim Öffnen direkt aus dem Dateisystem sperren Safari und Chrome den lokalen Speicher, und ohne Speicher kann ein Tagebuch nicht arbeiten. Die App weist beim Start darauf hin.</p>
           </div></details>
+          <details id="help-update"><summary>Ich habe eine neue Fassung hochgeladen, die App zeigt sie aber nicht.</summary><div class="a">
+            <p>Fast immer ist es der Zwischenspeicher des Browsers. Prüfen Sie der Reihe nach:</p>
+            <ul>
+              <li><b>Welche Version läuft gerade?</b> Unter <i>Mehr → Über diese App</i> steht die Versionsnummer. Stimmt sie schon, war der Upload erfolgreich und Sie sehen bereits die neue Fassung.</li>
+              <li><b>Zwischenspeicher umgehen:</b> Auf derselben Karte <i>Aktualisierung suchen</i> antippen. Das lädt die Datei erneut vom Server. Alternativ die Adresse von Hand um <code>?v=2</code> ergänzen.</li>
+              <li><b>Liegt die Datei richtig?</b> Im Repository muss <code>index.html</code> im Hauptverzeichnis liegen und beim letzten Commit aktualisiert worden sein. Achten Sie darauf, dass der Browser beim Herunterladen nicht <code>index-2.html</code> daraus gemacht hat.</li>
+              <li><b>Ist die Veröffentlichung durch?</b> Unter <i>Settings → Pages</i> steht, wann die Seite zuletzt bereitgestellt wurde. Der Vorgang dauert ein bis drei Minuten.</li>
+              <li><b>Symbol auf dem Home-Bildschirm:</b> Das hält seine eigene Kopie besonders hartnäckig. Zeigt die Adresse in Safari die neue Version, das Symbol aber nicht, löschen Sie es und legen es neu an.</li>
+            </ul>
+            <p>Nach dem Aktualisieren steht <code>?v=…</code> in der Adresszeile. Das ist ohne Bedeutung und verschwindet beim nächsten normalen Aufruf.</p>
+          </div></details>
           <details><summary>Funktioniert die App ohne Internetverbindung?</summary><div class="a">
             <p>Die gesamte Anwendung steckt in einer einzigen Datei und lädt nichts nach. Ist die Seite einmal geladen, arbeitet sie ohne Verbindung weiter. Zum erstmaligen Öffnen und nach einem Neustart braucht der Browser die Adresse allerdings.</p>
           </div></details>
@@ -1381,7 +1410,7 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
    ============================================================================ */
 'use strict';
 
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.1.1';
 const APP_DATE = '28.09.2026';
 const DB_NAME = 'asthma-tagebuch';
 const DB_VERSION = 1;
@@ -2345,7 +2374,9 @@ function renderEinstellungen() {
 
   const nm = S.meas.length, nd = S.days.size, na = S.acts.length;
   $('#dataStats').textContent = nm + ' Messungen · ' + nd + ' Tagesangaben · ' + na + ' Selbsttests';
-  $('#aboutText').innerHTML = 'Asthma-Tagebuch, Version ' + APP_VERSION + '. Aufbau nach dem gedruckten Asthma-Protokoll: Peak-Flow-Werte, Symptomstärke, Bedarfsmedikation, Besonderheiten, Ampel-Schema über den persönlichen Bestwert und Selbsttest alle 4 Wochen.<br><br>' +
+  $('#verNum').textContent = 'Version ' + APP_VERSION;
+  $('#verDate').textContent = 'Stand ' + APP_DATE;
+  $('#aboutText').innerHTML = 'Aufbau nach dem gedruckten Asthma-Protokoll: Peak-Flow-Werte, Symptomstärke, Bedarfs- und Allergie-Medikation, Besonderheiten, Ampel-Schema über den persönlichen Bestwert und Selbsttest alle 4 Wochen.<br><br>' +
     'Die Auswertungen sind eine Unterstützung für das Gespräch mit Ihrer behandelnden Praxis. Sie ersetzen weder ärztliche Beurteilung noch einen individuellen Notfallplan. Bei akuter Atemnot ohne Besserung innerhalb von 20 Minuten trotz Bedarfsmedikation: Notruf 112.';
   renderBestwertBox();
   renderThemeSeg();
@@ -3867,6 +3898,16 @@ function wire() {
   $('#btnImport').onclick = () => $('#fileImport').click();
   $('#fileImport').onchange = (e) => { const f = e.target.files[0]; if (f) importJSON(f); e.target.value = ''; };
   $('#btnWipe').onclick = wipeAll;
+
+  /* Neu laden unter Umgehung des Zwischenspeichers. Der angehängte Parameter
+     zwingt den Browser, die Datei erneut vom Server zu holen; die lokal
+     gespeicherten Eintragungen sind davon nicht berührt. */
+  $('#btnReloadApp').onclick = () => {
+    toast('Wird neu geladen …');
+    setTimeout(() => {
+      location.replace(location.pathname + '?v=' + Date.now() + location.hash);
+    }, 350);
+  };
 
   /* Tastatur */
   document.addEventListener('keydown', (e) => {
