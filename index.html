@@ -56,6 +56,7 @@ img{max-width:100%}
 
   --series-1:#2F6FC4;
   --series-2:#D9622F;
+  --series-3:#6B4FA8;
   --seq-1:#DCE8F8; --seq-2:#8FB6E4; --seq-3:#2F6FC4; --seq-4:#1B4A85;
 
   --grid:#E8E5DF;
@@ -93,6 +94,7 @@ img{max-width:100%}
 
     --series-1:#3987e5;
     --series-2:#d95926;
+    --series-3:#9085e9;
     --seq-1:#1B4A85; --seq-2:#256ABF; --seq-3:#3987E5; --seq-4:#8FB6E4;
 
     --grid:#262320;
@@ -124,6 +126,7 @@ img{max-width:100%}
 
   --series-1:#3987e5;
   --series-2:#d95926;
+  --series-3:#9085e9;
   --seq-1:#1B4A85; --seq-2:#256ABF; --seq-3:#3987E5; --seq-4:#8FB6E4;
 
   --grid:#262320;
@@ -318,6 +321,7 @@ select{
 .cal-cell .marks{display:flex; gap:2px; height:5px; align-items:center}
 .cal-cell .marks i{width:4px; height:4px; border-radius:50%; background:var(--ink-3); display:block}
 .cal-cell .marks i.med{background:var(--series-2)}
+.cal-cell .marks i.alg{background:var(--series-3)}
 /* Auswahl und „heute" werden als Ring dargestellt, nicht als Füllung –
    die Füllfarbe bleibt damit eindeutig dem Ampelbereich vorbehalten. */
 .cal-cell.today{box-shadow:inset 0 0 0 1.5px var(--ink-3)}
@@ -529,7 +533,7 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
     --gruen:#1F7A3D; --gruen-bg:#E9F3EC; --gruen-band:rgba(31,122,61,.10);
     --gelb:#8F6404;  --gelb-bg:#FBF2DC;  --gelb-band:rgba(214,158,20,.14);
     --rot:#B3261E;   --rot-bg:#FBE9E7;   --rot-band:rgba(179,38,30,.11);
-    --series-1:#1f5fae; --series-2:#c04c1e;
+    --series-1:#1f5fae; --series-2:#c04c1e; --series-3:#5b4293;
     --seq-1:#e3edfb; --seq-2:#9cc0ee; --seq-3:#3d7fd0; --seq-4:#17406f;
     --accent:#2D5546; --accent-soft:#eef2ef; --shadow-card:none; --shadow-pop:none;
   }
@@ -640,6 +644,17 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
               <button type="button" id="puffPlus" aria-label="Ein Hub mehr">+</button>
             </div>
           </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; border-top:1px solid var(--line); padding-top:14px">
+            <div>
+              <div class="lbl">Allergie-Medikation</div>
+              <div class="hint" id="allergyName">Anzahl der Tabletten heute</div>
+            </div>
+            <div class="stepper">
+              <button type="button" id="pillMinus" aria-label="Eine Tablette weniger">−</button>
+              <span class="v num" id="pillVal">0</span>
+              <button type="button" id="pillPlus" aria-label="Eine Tablette mehr">+</button>
+            </div>
+          </div>
           <div class="field">
             <span class="lbl">Auslöser / Trigger</span>
             <div class="chips" id="triggerChips"></div>
@@ -677,6 +692,7 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
           <span><i style="background:var(--surface-2)"></i> keine Messung</span>
           <span><i style="width:5px;height:5px;border-radius:50%;background:var(--ink-3);border:0"></i> Symptome</span>
           <span><i style="width:5px;height:5px;border-radius:50%;background:var(--series-2);border:0"></i> Bedarfsmedikation</span>
+          <span><i style="width:5px;height:5px;border-radius:50%;background:var(--series-3);border:0"></i> Allergie-Medikation</span>
         </div>
       </div>
 
@@ -749,11 +765,19 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
         </div>
         <div class="card">
           <div class="card-head">
-            <h2>Selbsttest-Verlauf</h2>
-            <span class="card-sub">Punktwert 5 – 25</span>
+            <h2>Allergie-Medikation</h2>
+            <span class="card-sub">Tabletten pro Tag</span>
           </div>
-          <div class="chart-wrap" id="chartAct"></div>
+          <div class="chart-wrap" id="chartPill"></div>
         </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Selbsttest-Verlauf</h2>
+          <span class="card-sub">Punktwert 5 – 25</span>
+        </div>
+        <div class="chart-wrap" id="chartAct"></div>
       </div>
 
       <div class="card">
@@ -886,8 +910,8 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
 
       <div class="card">
         <div class="card-head"><h2>Symptome</h2><span class="card-sub">im Protokoll erfasst</span></div>
-        <div class="chips" id="symToggles"></div>
-        <p class="hint" style="margin-top:10px">Husten, Atemnot, Auswurf und Beschwerden bei Anstrengung entsprechen dem Papierprotokoll. Engegefühl ist optional ergänzt.</p>
+        <div id="symToggles"></div>
+        <p class="hint">Husten, Atemnot, Auswurf und Beschwerden bei Anstrengung entsprechen dem Papierprotokoll. Engegefühl und Schnupfen sind ergänzt; abgewählte Symptome erscheinen weder im Eingabedialog noch in den Auswertungen.</p>
       </div>
 
       <div class="card">
@@ -1002,9 +1026,9 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
         <ol class="steps">
           <li><div><b>Persönlichen Bestwert eintragen</b><p>Unter <i>Mehr → Persönlicher Peak-Flow-Bestwert</i>. Ohne diesen Wert bleibt das Ampel-Schema wirkungslos, weil Grün, Gelb und Rot immer Anteile Ihres Bestwerts sind. Kennen Sie ihn nicht, hilft der 14-Tage-Assistent.</p></div></li>
           <li><div><b>Messzeiten festlegen</b><p>Voreingestellt sind 07:30 und 18:00 Uhr. Die Startseite weist Sie auf noch offene Messungen hin.</p></div></li>
-          <li><div><b>Medikation hinterlegen</b><p>Dauertherapie und Bedarfsmedikament. Das Bedarfsmedikament erscheint danach namentlich bei den Tagesangaben.</p></div></li>
+          <li><div><b>Medikation hinterlegen</b><p>Dauertherapie, Bedarfsmedikament und Allergie-Medikation. Bedarfsmedikament und Allergie-Medikation erscheinen danach namentlich bei den Tagesangaben.</p></div></li>
           <li><div><b>Zweimal täglich messen und eintragen</b><p>Über <i>Messung</i> oben rechts: Peak-Flow-Wert, Stärke der Symptome, bei Bedarf eine Notiz.</p></div></li>
-          <li><div><b>Tagesangaben ergänzen</b><p>Auf der Startseite: Hübe der Bedarfsmedikation, Auslöser, Besonderheiten wie Erkältung, Urlaub oder starke Pollenbelastung.</p></div></li>
+          <li><div><b>Tagesangaben ergänzen</b><p>Auf der Startseite: Hübe der Bedarfsmedikation, Tabletten der Allergie-Medikation, Auslöser sowie Besonderheiten wie Erkältung, Urlaub oder starke Pollenbelastung.</p></div></li>
           <li><div><b>Alle vier Wochen den Selbsttest ausfüllen</b><p>Fünf Fragen zu den zurückliegenden vier Wochen, Ergebnis zwischen 5 und 25 Punkten.</p></div></li>
           <li><div><b>Regelmäßig sichern</b><p>Einmal im Monat <i>Mehr → Daten → Daten exportieren</i>. Vor jedem Arzttermin zusätzlich den PDF-Report erzeugen.</p></div></li>
         </ol>
@@ -1051,6 +1075,12 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
           <details><summary>Was gehört unter „Besonderheiten“?</summary><div class="a">
             <p>Alles, was einen abweichenden Wert erklären könnte: Erkältung, Infekt, Urlaub, ungewohnte Anstrengung, starke Pollenbelastung, Medikamentenumstellung, Stress, Renovierung in der Wohnung.</p>
             <p>Diese Angaben stehen später im PDF-Report unter dem jeweiligen Tag und beantworten in der Praxis oft die Frage „Woran lag das in dieser Woche?“.</p>
+          </div></details>
+          <details id="help-allergie"><summary>Wie erfasse ich Allergie-Medikamente und Schnupfen?</summary><div class="a">
+            <p>Beides ist getrennt von der Asthma-Dokumentation angelegt, weil es einem anderen Verlauf folgt.</p>
+            <p><b>Tabletten:</b> Auf der Startseite unter den Tagesangaben gibt es neben dem Bedarfsmedikament einen zweiten Zähler <i>Allergie-Medikation</i>. Dort tragen Sie die Anzahl der Tabletten des Tages ein — etwa ein Antihistaminikum. Den Namen des Präparats hinterlegen Sie einmalig unter <i>Mehr → Medikation</i> mit der Art <i>Allergie-Medikation</i>; er erscheint dann über dem Zähler.</p>
+            <p><b>Schnupfen:</b> Im Eingabedialog einer Messung finden Sie unter den Asthma-Symptomen den Abschnitt <i>Allergie-Symptome</i> mit derselben vierstufigen Skala.</p>
+            <p>Im Kalender erhält jeder Tag mit Allergie-Medikation einen eigenen violetten Punkt, zusätzlich zum orangefarbenen Punkt der Bedarfsmedikation. In Auswertung und Report erscheinen beide Angaben in eigenen Zeilen und Diagrammen.</p>
           </div></details>
           <details><summary>Wozu die Auslöser?</summary><div class="a">
             <p>Auslöser sind vorgefertigte Schlagworte wie Pollen, Kälte oder Infekt, die Sie mit einem Tippen setzen. Die Auswertung zeigt Ihnen anschließend, wie der mittlere Peak-Flow an Tagen mit einem bestimmten Auslöser vom Mittel aller Tage abweicht.</p>
@@ -1246,10 +1276,7 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
         <input type="number" id="mPef" min="50" max="900" step="5" inputmode="numeric" placeholder="z. B. 450" required>
         <div id="mZoneHint" class="hint"></div>
       </div>
-      <div>
-        <div class="sec-label" style="margin-bottom:6px">Asthma-Symptome</div>
-        <div id="mSymptoms"></div>
-      </div>
+      <div id="mSymptoms"></div>
       <div class="field">
         <label for="mNote">Notiz zur Messung</label>
         <input type="text" id="mNote" placeholder="optional, z. B. nach Belastung">
@@ -1279,6 +1306,14 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
           <button type="button" id="dPuffMinus" aria-label="Ein Hub weniger">−</button>
           <span class="v num" id="dPuffVal">0</span>
           <button type="button" id="dPuffPlus" aria-label="Ein Hub mehr">+</button>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; border-top:1px solid var(--line); padding-top:14px">
+        <div><div class="lbl">Allergie-Medikation</div><div class="hint">Anzahl der Tabletten</div></div>
+        <div class="stepper">
+          <button type="button" id="dPillMinus" aria-label="Eine Tablette weniger">−</button>
+          <span class="v num" id="dPillVal">0</span>
+          <button type="button" id="dPillPlus" aria-label="Eine Tablette mehr">+</button>
         </div>
       </div>
       <div class="field"><span class="lbl">Auslöser</span><div class="chips" id="dTriggers"></div></div>
@@ -1325,6 +1360,7 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
           <select id="medType">
             <option value="controller">Dauertherapie</option>
             <option value="reliever">Bedarfsmedikament</option>
+            <option value="allergy">Allergie-Medikation</option>
           </select>
         </div>
       </div>
@@ -1345,8 +1381,8 @@ dialog::backdrop{background:rgba(8,11,15,.55); backdrop-filter:blur(2px)}
    ============================================================================ */
 'use strict';
 
-const APP_VERSION = '1.0.0';
-const APP_DATE = '18.09.2026';
+const APP_VERSION = '1.1.0';
+const APP_DATE = '28.09.2026';
 const DB_NAME = 'asthma-tagebuch';
 const DB_VERSION = 1;
 const STORES = ['measurements', 'days', 'act', 'meds', 'settings'];
@@ -1387,24 +1423,32 @@ function idbClear(store) {
 
 /* ---------- Zustand ---------- */
 const DEFAULT_TRIGGERS = ['Pollen', 'Kälte', 'Infekt', 'Anstrengung', 'Hausstaub', 'Tierhaare', 'Rauch', 'Stress', 'Duftstoffe'];
+/* Symptome sind zwei Gruppen zugeordnet; die Gruppe steuert die Überschrift
+   im Eingabedialog und die Abschnitte in den Einstellungen. */
+const SYM_GROUPS = [
+  { id: 'asthma', label: 'Asthma-Symptome' },
+  { id: 'allergie', label: 'Allergie-Symptome' }
+];
 const SYMPTOMS = [
-  { id: 'husten', label: 'Husten', std: true },
-  { id: 'atemnot', label: 'Atemnot', std: true },
-  { id: 'auswurf', label: 'Auswurf', std: true },
-  { id: 'anstrengung', label: 'Beschwerden bei Anstrengung', kurz: 'Anstrengung', std: true },
-  { id: 'engegefuehl', label: 'Engegefühl', kurz: 'Engegefühl', std: false }
+  { id: 'husten', label: 'Husten', group: 'asthma', std: true },
+  { id: 'atemnot', label: 'Atemnot', group: 'asthma', std: true },
+  { id: 'auswurf', label: 'Auswurf', group: 'asthma', std: true },
+  { id: 'anstrengung', label: 'Beschwerden bei Anstrengung', kurz: 'Anstrengung', group: 'asthma', std: true },
+  { id: 'engegefuehl', label: 'Engegefühl', kurz: 'Engegefühl', group: 'asthma', std: false },
+  { id: 'schnupfen', label: 'Schnupfen', group: 'allergie', std: true }
 ];
 const SEV = ['kein(e)', 'wenig', 'mittel', 'stark'];
+const MED_TYPE = { controller: 'Dauertherapie', reliever: 'Bedarfsmedikament', allergy: 'Allergie-Medikation' };
 
 const S = {
   meas: [], days: new Map(), acts: [], meds: [],
   set: {
     best: null, yellowPct: 80, redPct: 50,
     times: ['07:30', '18:00'],
-    symptoms: ['husten', 'atemnot', 'auswurf', 'anstrengung'],
+    symptoms: ['husten', 'atemnot', 'auswurf', 'anstrengung', 'schnupfen'],
     triggers: DEFAULT_TRIGGERS.slice(),
     theme: 'auto', notify: false, name: '',
-    bwStart: null, dsController: '', dsHost: ''
+    bwStart: null, dsController: '', dsHost: '', migrated: 0
   },
   view: 'heute', calMonth: null, selDate: null, range: 28,
   repParts: { wochen: 1, verlauf: 1, kennzahlen: 1, act: 1, tabelle: 0 }
@@ -1452,7 +1496,12 @@ function zoneAdvice(z) {
 
 /* ---------- Ableitungen ---------- */
 function measOf(date) { return S.meas.filter((m) => m.date === date).sort((a, b) => a.time.localeCompare(b.time)); }
-function dayOf(date) { return S.days.get(date) || { date, puffs: 0, note: '', triggers: [] }; }
+function dayOf(date) {
+  const d = S.days.get(date);
+  if (!d) return { date, puffs: 0, pills: 0, note: '', triggers: [] };
+  if (d.pills === undefined) d.pills = 0;   /* Bestände vor Version 1.1.0 */
+  return d;
+}
 function dayZone(date) {
   const ms = measOf(date).filter((m) => m.pef);
   if (!ms.length) return null;
@@ -1462,7 +1511,9 @@ function dayZone(date) {
 }
 function dayHasSym(date) { return measOf(date).some((m) => S.set.symptoms.some((k) => (m.sym || {})[k] > 0)); }
 function activeSymptoms() { return SYMPTOMS.filter((s) => S.set.symptoms.includes(s.id)); }
+function activeSymptomsOf(group) { return activeSymptoms().filter((s) => s.group === group); }
 function symLabel(s) { return s.kurz || s.label; }
+function symOf(id) { return SYMPTOMS.find((s) => s.id === id); }
 
 function rangeDates(days) {
   const end = todayISO();
@@ -1512,7 +1563,7 @@ function applyTheme() {
 /* ---------- Speichern ---------- */
 async function saveSettings() { await idbPut('settings', { key: 'main', value: S.set }); }
 async function saveDay(d) {
-  if (!d.puffs && !d.note && (!d.triggers || !d.triggers.length)) { S.days.delete(d.date); await idbDel('days', d.date).catch(() => {}); }
+  if (!d.puffs && !d.pills && !d.note && (!d.triggers || !d.triggers.length)) { S.days.delete(d.date); await idbDel('days', d.date).catch(() => {}); }
   else { S.days.set(d.date, d); await idbPut('days', d); }
 }
 
@@ -1526,6 +1577,13 @@ async function loadAll() {
   const main = st.find((x) => x.key === 'main');
   if (main && main.value) Object.assign(S.set, main.value);
   if (!S.set.triggers || !S.set.triggers.length) S.set.triggers = DEFAULT_TRIGGERS.slice();
+  /* Einmalige Nachrüstung für Bestände, die vor Version 1.1.0 angelegt wurden:
+     Schnupfen wird einmal aktiviert. Wer es danach abwählt, behält die Wahl. */
+  if (!S.set.migrated) {
+    if (S.set.symptoms.indexOf('schnupfen') < 0) S.set.symptoms = S.set.symptoms.concat(['schnupfen']);
+    S.set.migrated = 1;
+    await saveSettings();
+  }
 }
 
 /* ============================================================================
@@ -1567,11 +1625,13 @@ function renderHeute() {
   const d = dayOf(today);
   const wk = dateSpan(addDays(today, -6), today);
   const wkPuffs = wk.reduce((a, x) => a + (dayOf(x).puffs || 0), 0);
+  const wkPills = wk.reduce((a, x) => a + (dayOf(x).pills || 0), 0);
   $('#todayKpis').innerHTML = [
     kpi('Messungen heute', ms.length, (S.set.times || []).length ? 'von ' + S.set.times.length + ' geplant' : ''),
     kpi('Höchster Wert', st ? st.max + ' l/min' : '–', st && S.set.best ? Math.round(st.max / S.set.best * 100) + ' % des Bestwerts' : ''),
     kpi('Tagesvariabilität', st ? st.variability.toFixed(0) + ' %' : '–', st ? (st.variability > 20 ? 'über 20 % – auffällig' : 'unauffällig') : 'mind. 2 Messungen nötig'),
-    kpi('Hübe (7 Tage)', wkPuffs, 'heute ' + (d.puffs || 0))
+    kpi('Hübe (7 Tage)', wkPuffs, 'heute ' + (d.puffs || 0)),
+    kpi('Allergie-Tabletten (7 Tage)', wkPills, 'heute ' + (d.pills || 0))
   ].join('');
 
   /* Messungsliste */
@@ -1581,10 +1641,13 @@ function renderHeute() {
 
   /* Tagesangaben */
   $('#puffVal').textContent = d.puffs || 0;
+  $('#pillVal').textContent = d.pills || 0;
   $('#besonderheiten').value = d.note || '';
   renderTriggerChips($('#triggerChips'), d.triggers || [], (arr) => { const dd = dayOf(today); dd.triggers = arr; saveDay(dd).then(renderAll); });
   const rel = S.meds.find((m) => m.type === 'reliever');
   $('#relieverName').textContent = rel ? (rel.name + (rel.dose ? ' · ' + rel.dose : '')) : 'Anzahl der Hübe heute';
+  const alg = S.meds.find((m) => m.type === 'allergy');
+  $('#allergyName').textContent = alg ? (alg.name + (alg.dose ? ' · ' + alg.dose : '')) : 'Anzahl der Tabletten heute';
 
   /* Dauertherapie */
   const ctrls = S.meds.filter((m) => m.type === 'controller');
@@ -1643,8 +1706,9 @@ function renderKalender() {
     if (ds === S.selDate) cls.push('sel');
     if (ds > today) cls.push('future');
     let marks = '';
-    if (dayHasSym(ds)) marks += '<i></i>';
-    if (day.puffs > 0) marks += '<i class="med"></i>';
+    if (dayHasSym(ds)) marks += '<i title="Symptome"></i>';
+    if (day.puffs > 0) marks += '<i class="med" title="Bedarfsmedikation"></i>';
+    if (day.pills > 0) marks += '<i class="alg" title="Allergie-Medikation"></i>';
     const n = measOf(ds).length;
     html += '<button class="' + cls.join(' ') + '" type="button" data-day="' + ds + '" aria-label="' + deDate(ds) + (n ? ', ' + n + ' Messungen' : ', keine Messung') + (z ? ', Bereich ' + ZONE_LABEL[z] : '') + '">' +
       '<span class="d num">' + d + '</span><span class="marks">' + marks + '</span></button>';
@@ -1661,9 +1725,10 @@ function renderCalDay() {
   const list = measOf(ds);
   const day = dayOf(ds);
   let extra = '';
-  if (day.puffs || day.note || (day.triggers || []).length) {
+  if (day.puffs || day.pills || day.note || (day.triggers || []).length) {
     extra = '<div style="padding:12px 16px; border-top:1px solid var(--line); display:grid; gap:7px">' +
       (day.puffs ? '<div style="font-size:13px"><b>Bedarfsmedikament:</b> <span class="num">' + day.puffs + '</span> Hübe</div>' : '') +
+      (day.pills ? '<div style="font-size:13px"><b>Allergie-Medikation:</b> <span class="num">' + day.pills + '</span> Tabletten</div>' : '') +
       ((day.triggers || []).length ? '<div style="font-size:13px"><b>Auslöser:</b> ' + esc(day.triggers.join(', ')) + '</div>' : '') +
       (day.note ? '<div style="font-size:13px"><b>Besonderheiten:</b> ' + esc(day.note) + '</div>' : '') + '</div>';
   }
@@ -1953,10 +2018,12 @@ function chartSym(host, from, to) {
   host.appendChild(lg);
 }
 
-/* ---------- Bedarfsmedikation ---------- */
-function chartMed(host, from, to) {
-  const days = dateSpan(from, to).map((d) => ({ d: d, p: dayOf(d).puffs || 0 }));
-  if (!days.some((o) => o.p > 0)) { emptyChart(host, 'Im Zeitraum wurde keine Bedarfsmedikation dokumentiert.'); return; }
+/* ---------- Tagesmengen: Bedarfsmedikation und Allergie-Medikation ---------- */
+function chartMed(host, from, to) { medBars(host, from, to, 'puffs', 'var(--series-2)', 'Hübe', 'Im Zeitraum wurde keine Bedarfsmedikation dokumentiert.'); }
+function chartPill(host, from, to) { medBars(host, from, to, 'pills', 'var(--series-3)', 'Tabletten', 'Im Zeitraum wurde keine Allergie-Medikation dokumentiert.'); }
+function medBars(host, from, to, key, col, unit, leerText) {
+  const days = dateSpan(from, to).map((d) => ({ d: d, p: dayOf(d)[key] || 0 }));
+  if (!days.some((o) => o.p > 0)) { emptyChart(host, leerText); return; }
   const nar = isNarrow(host);
   const W = nar ? 340 : 420, H = nar ? 210 : 200, L = nar ? 28 : 30, R = 8, T = 12, B = 26;
   const iw = W - L - R, ih = H - T - B;
@@ -1966,7 +2033,7 @@ function chartMed(host, from, to) {
   const x = (i) => L + (i + 0.5) * iw / n;
   const y = (v) => T + ih - v / hi * ih;
   const s = svgRoot(W, H);
-  s.setAttribute('aria-label', 'Hübe der Bedarfsmedikation pro Tag');
+  s.setAttribute('aria-label', unit + ' pro Tag');
   const st = hi <= 6 ? 1 : Math.ceil(hi / 5);
   for (let v = 0; v <= hi; v += st) {
     s.appendChild(svgEl('line', { x1: L, x2: L + iw, y1: y(v), y2: y(v), stroke: 'var(--grid)', 'stroke-width': 1 }));
@@ -1974,7 +2041,7 @@ function chartMed(host, from, to) {
   }
   days.forEach((o, i) => {
     if (!o.p) return;
-    s.appendChild(svgEl('rect', { x: x(i) - bw / 2, y: y(o.p), width: bw, height: Math.max(1.5, ih - (y(o.p) - T)), rx: Math.min(4, bw / 2), fill: 'var(--series-2)' }));
+    s.appendChild(svgEl('rect', { x: x(i) - bw / 2, y: y(o.p), width: bw, height: Math.max(1.5, ih - (y(o.p) - T)), rx: Math.min(4, bw / 2), fill: col }));
   });
   const ticks = tickSet(n, 8);
   days.forEach((o, i) => { if (ticks.has(i)) s.appendChild(txt(x(i), H - B + 15, deShort(o.d), { size: 9.5 })); });
@@ -1983,7 +2050,7 @@ function chartMed(host, from, to) {
   const total = days.reduce((a, o) => a + o.p, 0);
   const tage = days.filter((o) => o.p > 0).length;
   const p = document.createElement('p'); p.className = 'hint'; p.style.marginTop = '8px';
-  p.textContent = total + ' Hübe an ' + tage + ' von ' + n + ' Tagen · im Mittel ' + (total / n).toFixed(1) + ' Hübe pro Tag.';
+  p.textContent = total + ' ' + unit + ' an ' + tage + ' von ' + n + ' Tagen · im Mittel ' + (total / n).toFixed(1) + ' ' + unit.toLowerCase() + ' pro Tag.';
   host.appendChild(p);
 }
 
@@ -2035,6 +2102,8 @@ function renderAuswertung() {
   const varis = days.map((d) => dayStats(d)).filter((s) => s && s.n >= 2).map((s) => s.variability);
   const avgVar = varis.length ? varis.reduce((a, b) => a + b, 0) / varis.length : null;
   const puffs = days.reduce((a, d) => a + (dayOf(d).puffs || 0), 0);
+  const pills = days.reduce((a, d) => a + (dayOf(d).pills || 0), 0);
+  const pillDays = days.filter((d) => (dayOf(d).pills || 0) > 0).length;
   const symFree = days.filter((d) => measOf(d).length > 0 && !dayHasSym(d)).length;
   const lastAct = S.acts.length ? S.acts[S.acts.length - 1] : null;
   const zoneG = S.set.best && ms.length ? Math.round(ms.filter((m) => zoneOf(m.pef) === 'gruen').length / ms.length * 100) : null;
@@ -2046,6 +2115,7 @@ function renderAuswertung() {
     kpi('Ø Tagesvariabilität', avgVar !== null ? avgVar.toFixed(1) + ' %' : '–', avgVar !== null ? (avgVar > 20 ? 'über der 20-%-Grenze' : 'unter der 20-%-Grenze') : 'mind. 2 Messungen je Tag'),
     kpi('Symptomfreie Tage', symFree + ' / ' + measured, 'von ' + days.length + ' Tagen dokumentiert'),
     kpi('Hübe gesamt', puffs, (puffs / days.length).toFixed(1) + ' pro Tag'),
+    kpi('Allergie-Tabletten', pills, pillDays + ' von ' + days.length + ' Tagen'),
     kpi('Letzter Selbsttest', lastAct ? lastAct.score + ' / 25' : '–', lastAct ? deDate(lastAct.date) : 'noch nicht durchgeführt')
   ].join('');
 
@@ -2054,6 +2124,7 @@ function renderAuswertung() {
   chartVar($('#chartVar'), from, to);
   chartSym($('#chartSym'), from, to);
   chartMed($('#chartMed'), from, to);
+  chartPill($('#chartPill'), from, to);
   chartAct($('#chartAct'), from, to);
   renderTriggerEval(from, to);
   renderDataTable(from, to);
@@ -2071,7 +2142,8 @@ function renderTriggerEval(from, to) {
     const vals = hit.map((d) => dayStats(d)).filter(Boolean).map((s) => s.avg);
     const a = vals.length ? vals.reduce((x, y) => x + y, 0) / vals.length : null;
     const p = hit.reduce((x, d) => x + (dayOf(d).puffs || 0), 0);
-    rows.push({ t, n: hit.length, avg: a, puffs: p, delta: a !== null && globalAvg !== null ? a - globalAvg : null });
+    const tb = hit.reduce((x, d) => x + (dayOf(d).pills || 0), 0);
+    rows.push({ t, n: hit.length, avg: a, puffs: p, pills: tb, delta: a !== null && globalAvg !== null ? a - globalAvg : null });
   });
   if (!rows.length) {
     $('#triggerEval').innerHTML = '<div class="empty" style="border:1px dashed var(--line); border-radius:12px; background:transparent">Im Zeitraum wurden keine Auslöser dokumentiert. Auslöser lassen sich unter „Heute“ bei den Tagesangaben erfassen.</div>';
@@ -2079,10 +2151,10 @@ function renderTriggerEval(from, to) {
   }
   rows.sort((a, b) => b.n - a.n);
   $('#triggerEval').innerHTML = '<div class="tbl-wrap"><table class="data"><thead><tr>' +
-    '<th>Auslöser</th><th>Tage</th><th>Ø Peak-Flow</th><th>Abweichung</th><th>Hübe</th></tr></thead><tbody>' +
+    '<th>Auslöser</th><th>Tage</th><th>Ø Peak-Flow</th><th>Abweichung</th><th>Hübe</th><th>Tabletten</th></tr></thead><tbody>' +
     rows.map((r) => '<tr><td>' + esc(r.t) + '</td><td class="n">' + r.n + '</td><td class="n">' + (r.avg !== null ? Math.round(r.avg) + ' l/min' : '–') + '</td>' +
       '<td class="n" style="color:' + (r.delta === null ? 'inherit' : r.delta < -10 ? 'var(--rot)' : r.delta > 10 ? 'var(--gruen)' : 'inherit') + '">' +
-      (r.delta === null ? '–' : (r.delta > 0 ? '+' : '') + Math.round(r.delta) + ' l/min') + '</td><td class="n">' + r.puffs + '</td></tr>').join('') +
+      (r.delta === null ? '–' : (r.delta > 0 ? '+' : '') + Math.round(r.delta) + ' l/min') + '</td><td class="n">' + r.puffs + '</td><td class="n">' + r.pills + '</td></tr>').join('') +
     '</tbody></table></div><p class="hint" style="margin-top:9px">Abweichung: mittlerer Peak-Flow an Tagen mit diesem Auslöser gegenüber dem Mittel aller dokumentierten Tage des Zeitraums. Ein Zusammenhang ist damit nicht bewiesen; die Angabe dient als Anhaltspunkt für das Gespräch in der Praxis.</p>';
 }
 
@@ -2091,7 +2163,7 @@ function renderDataTable(from, to) {
   if (!ms.length) { $('#dataTable').innerHTML = '<div class="empty" style="background:transparent">Keine Messwerte im Zeitraum.</div>'; return; }
   const syms = activeSymptoms();
   const head = '<tr><th>Datum</th><th>Zeit</th><th>Peak-Flow</th><th>% Bestwert</th><th>Bereich</th>' +
-    syms.map((s) => '<th>' + esc(symLabel(s)) + '</th>').join('') + '<th>Hübe</th><th>Besonderheiten</th></tr>';
+    syms.map((s) => '<th>' + esc(symLabel(s)) + '</th>').join('') + '<th>Hübe</th><th>Tabl.</th><th>Besonderheiten</th></tr>';
   const body = ms.slice().reverse().map((m) => {
     const z = zoneOf(m.pef); const d = dayOf(m.date);
     const first0 = measOf(m.date)[0];
@@ -2100,7 +2172,7 @@ function renderDataTable(from, to) {
       '<td class="n">' + (m.pef || '–') + '</td><td class="n">' + (pctOfBest(m.pef) !== null ? pctOfBest(m.pef) + ' %' : '–') + '</td>' +
       '<td><span style="color:' + zoneVar(z) + '; font-weight:650">' + (z ? ZONE_LABEL[z] : '–') + '</span></td>' +
       syms.map((s) => '<td>' + SEV[((m.sym || {})[s.id]) || 0] + '</td>').join('') +
-      '<td class="n">' + (firstOfDay ? (d.puffs || 0) : '') + '</td><td>' + esc(firstOfDay ? (d.note || '') : '') + '</td></tr>';
+      '<td class="n">' + (firstOfDay ? (d.puffs || 0) : '') + '</td><td class="n">' + (firstOfDay ? (d.pills || 0) : '') + '</td><td>' + esc(firstOfDay ? (d.note || '') : '') + '</td></tr>';
   }).join('');
   $('#dataTable').innerHTML = '<table class="data"><thead>' + head + '</thead><tbody>' + body + '</tbody></table>';
 }
@@ -2255,12 +2327,16 @@ function renderEinstellungen() {
     : '<div class="empty">Keine Messzeit festgelegt.</div>';
   $('#setNotify').checked = !!S.set.notify;
 
-  $('#symToggles').innerHTML = SYMPTOMS.map((s) =>
-    '<button class="chip" type="button" data-sym="' + s.id + '" aria-pressed="' + (S.set.symptoms.indexOf(s.id) >= 0 ? 'true' : 'false') + '">' + esc(s.label) + '</button>').join('');
+  $('#symToggles').innerHTML = SYM_GROUPS.map((g) =>
+    '<div style="margin-bottom:12px"><div class="sec-label" style="margin-bottom:7px">' + esc(g.label) + '</div><div class="chips">' +
+    SYMPTOMS.filter((x) => x.group === g.id).map((x) =>
+      '<button class="chip" type="button" data-sym="' + x.id + '" aria-pressed="' +
+      (S.set.symptoms.indexOf(x.id) >= 0 ? 'true' : 'false') + '">' + esc(x.label) + '</button>').join('') +
+    '</div></div>').join('');
 
   $('#medList').innerHTML = S.meds.length
     ? S.meds.map((m) => '<div class="list-row"><div class="grow"><div class="nm">' + esc(m.name) + '</div><div class="ds">' +
-      (m.type === 'reliever' ? 'Bedarfsmedikament' : 'Dauertherapie') + (m.dose ? ' · ' + esc(m.dose) : '') + (m.plan ? ' · ' + esc(m.plan) : '') + '</div></div>' +
+      MED_TYPE[m.type] + (m.dose ? ' · ' + esc(m.dose) : '') + (m.plan ? ' · ' + esc(m.plan) : '') + '</div></div>' +
       '<button class="btn ghost sm" type="button" data-med="' + m.id + '">Bearbeiten</button></div>').join('')
     : '<div class="empty">Noch kein Medikament hinterlegt.</div>';
 
@@ -2302,7 +2378,8 @@ function renderDatenschutz() {
       '<p>Sie erfassen in dieser App:</p><ul>' +
       '<li>Peak-Flow-Messwerte mit Datum und Uhrzeit</li>' +
       '<li>Stärke Ihrer Symptome je Messung</li>' +
-      '<li>Anzahl der Hübe der Bedarfsmedikation, Auslöser und Besonderheiten je Tag</li>' +
+      '<li>Anzahl der Hübe der Bedarfsmedikation und Anzahl der Tabletten der Allergie-Medikation je Tag</li>' +
+      '<li>Auslöser und Besonderheiten je Tag</li>' +
       '<li>Ihre Medikation sowie die Ergebnisse des Selbsttests</li>' +
       '<li>Einstellungen wie Bestwert, Messzeiten und Darstellung; auf Wunsch einen Namen für den Report</li>' +
       '</ul><p>Diese Angaben sind <b>Gesundheitsdaten</b> und damit besondere Kategorien personenbezogener Daten nach Art. 9 Abs. 1 DSGVO. Gehen Sie entsprechend sorgsam damit um.</p>') +
@@ -2368,10 +2445,10 @@ function weekSvg(monday, opts) {
   const syms = activeSymptoms();
   const W = 700, LBL = 38, RPAD = 4;
   const colW = (W - LBL - RPAD) / 7;
-  const hDow = 15, hDate = 14, hTime = 14, RH = 13, RS = 15, hMed = 15, hNote = 22;
+  const hDow = 15, hDate = 14, hTime = 14, RH = 13, RS = 15, hMed = 15, hPill = 15, hNote = 22;
   const gridH = PEF_ROWS * RH;
   const yDow = 2, yDate = yDow + hDow, yTime = yDate + hDate, yGrid = yTime + hTime;
-  const ySym = yGrid + gridH, yMed = ySym + syms.length * RS, yNote = yMed + hMed;
+  const ySym = yGrid + gridH, yMed = ySym + syms.length * RS, yPill = yMed + hMed, yNote = yPill + hPill;
   const H = yNote + hNote + 3;
   const days = [];
   for (let i = 0; i < 7; i++) days.push(addDays(monday, i));
@@ -2451,6 +2528,7 @@ function weekSvg(monday, opts) {
     /* Bedarfsmedikation + Besonderheiten */
     const dd = dayOf(d);
     s.appendChild(txt(x0 + colW / 2, yMed + hMed / 2 + 3.2, dd.puffs ? String(dd.puffs) : '–', { size: 8, weight: 650, fill: dd.puffs ? 'var(--series-2)' : 'var(--ink-3)' }));
+    s.appendChild(txt(x0 + colW / 2, yPill + hPill / 2 + 3.2, dd.pills ? String(dd.pills) : '–', { size: 8, weight: 650, fill: dd.pills ? 'var(--series-3)' : 'var(--ink-3)' }));
     const bes = [(dd.triggers || []).join(', '), dd.note].filter(Boolean).join(' · ');
     if (bes) {
       const max = Math.floor(colW / 3.1);
@@ -2464,8 +2542,10 @@ function weekSvg(monday, opts) {
   /* Rahmen und Zeilenbeschriftungen */
   line(LBL, ySym, W - RPAD, ySym, 'var(--line-strong)', 0.9);
   line(LBL, yMed, W - RPAD, yMed, 'var(--line-strong)', 0.9);
+  line(LBL, yPill, W - RPAD, yPill, 'var(--line)', 0.6);
   line(LBL, yNote, W - RPAD, yNote, 'var(--line)', 0.6);
   s.appendChild(txt(2, yMed + hMed / 2 + 3, 'Hübe', { anchor: 'start', size: 6.6, fill: 'var(--ink-2)', weight: 600, tab: false }));
+  s.appendChild(txt(2, yPill + hPill / 2 + 3, 'Tabl.', { anchor: 'start', size: 6.6, fill: 'var(--ink-2)', weight: 600, tab: false }));
   s.appendChild(txt(2, yNote + hNote / 2 + 3, 'Notiz', { anchor: 'start', size: 6.6, fill: 'var(--ink-2)', weight: 600, tab: false }));
   rect(LBL, yDow, W - LBL - RPAD, H - yDow - 3, 'none', 'var(--line-strong)', 0.9);
   line(LBL, yGrid, W - RPAD, yGrid, 'var(--line-strong)', 0.9);
@@ -2532,6 +2612,8 @@ function buildReport(from, to, name) {
     const overVar = varis.filter((v) => v > 20).length;
     const puffs = days.reduce((a, d) => a + (dayOf(d).puffs || 0), 0);
     const puffDays = days.filter((d) => (dayOf(d).puffs || 0) > 0).length;
+    const pills = days.reduce((a, d) => a + (dayOf(d).pills || 0), 0);
+    const pillDays = days.filter((d) => (dayOf(d).pills || 0) > 0).length;
     const symFree = days.filter((d) => measOf(d).length > 0 && !dayHasSym(d)).length;
     const zc = { gruen: 0, gelb: 0, rot: 0 };
     ms.forEach((m) => { const z = zoneOf(m.pef); if (z) zc[z]++; });
@@ -2540,7 +2622,8 @@ function buildReport(from, to, name) {
       ['Mittlerer Peak-Flow', avg ? avg + ' l/min' + (S.set.best ? ' (' + Math.round(avg / S.set.best * 100) + ' % des Bestwerts)' : '') : '–', 'Spanne', mn && mx ? mn + ' – ' + mx + ' l/min' : '–'],
       ['Mittlere Tagesvariabilität', avgVar !== null ? avgVar.toFixed(1) + ' %' : '–', 'Tage über 20 %', overVar + ' von ' + varis.length],
       ['Messungen im grünen Bereich', ms.length ? zc.gruen + ' (' + Math.round(zc.gruen / ms.length * 100) + ' %)' : '–', 'gelb / rot', ms.length ? zc.gelb + ' / ' + zc.rot : '–'],
-      ['Symptomfreie Tage', symFree + ' von ' + measured, 'Bedarfsmedikation', puffs + ' Hübe an ' + puffDays + ' Tagen']
+      ['Symptomfreie Tage', symFree + ' von ' + measured, 'Bedarfsmedikation', puffs + ' Hübe an ' + puffDays + ' Tagen'],
+      ['Allergie-Medikation', pills + ' Tabletten an ' + pillDays + ' Tagen', '', '']
     ];
     const t = repTable(['Kennzahl', 'Wert', 'Kennzahl', 'Wert'], rows);
     root.appendChild(repBlock('Kennzahlen des Zeitraums', t));
@@ -2562,7 +2645,7 @@ function buildReport(from, to, name) {
     }
     const lg = document.createElement('div');
     lg.style.cssText = 'font-size:7pt; color:var(--ink-3); margin-top:2mm';
-    lg.innerHTML = 'Messpunkte sind als ✕ im zutreffenden Kästchen eingetragen und innerhalb der Woche verbunden. Hintergrundfarbe des Rasters: Ampel-Schema auf Basis des persönlichen Bestwerts. Symptomstärke je Messung: – kein(e) · wenig · mittel · stark.';
+    lg.innerHTML = 'Messpunkte sind als ✕ im zutreffenden Kästchen eingetragen und innerhalb der Woche verbunden. Hintergrundfarbe des Rasters: Ampel-Schema auf Basis des persönlichen Bestwerts. Symptomstärke je Messung: – kein(e) · wenig · mittel · stark. Zeile „Hübe": Bedarfsmedikation, Zeile „Tabl.": Allergie-Medikation.';
     wrap.appendChild(lg);
     root.appendChild(repBlock('Wochenprotokoll', wrap, deDate(from) + ' – ' + deDate(to), true));
   }
@@ -2579,6 +2662,11 @@ function buildReport(from, to, name) {
     const c3 = document.createElement('div'); c3.className = 'chart-wrap'; chartMed(c3, from, to);
     two.appendChild(c2); two.appendChild(c3);
     g.appendChild(two);
+    const two2 = document.createElement('div');
+    two2.style.cssText = 'display:grid; grid-template-columns:1fr 1fr; gap:6mm; margin-top:5mm';
+    const c5 = document.createElement('div'); c5.className = 'chart-wrap'; chartPill(c5, from, to);
+    two2.appendChild(c5); two2.appendChild(document.createElement('div'));
+    g.appendChild(two2);
     const c4 = document.createElement('div'); c4.className = 'chart-wrap'; c4.style.marginTop = '5mm'; chartSym(c4, from, to);
     g.appendChild(c4);
     root.appendChild(repBlock('Verlauf', g));
@@ -2612,10 +2700,10 @@ function buildReport(from, to, name) {
       return [deDate(m.date), m.time, m.pef || '–', pctOfBest(m.pef) !== null ? pctOfBest(m.pef) + ' %' : '–',
         z ? '<span style="color:' + zoneVar(z) + '; font-weight:650">' + ZONE_LABEL[z] + '</span>' : '–']
         .concat(syms.map((s) => SEV[((m.sym || {})[s.id]) || 0]))
-        .concat([first ? (dd.puffs || 0) : '', first ? esc(dd.note || '') : '']);
+        .concat([first ? (dd.puffs || 0) : '', first ? (dd.pills || 0) : '', first ? esc(dd.note || '') : '']);
     });
     root.appendChild(repBlock('Messwerte', rows.length
-      ? repTable(['Datum', 'Zeit', 'l/min', '% Best.', 'Bereich'].concat(syms.map(symLabel)).concat(['Hübe', 'Besonderheiten']), rows)
+      ? repTable(['Datum', 'Zeit', 'l/min', '% Best.', 'Bereich'].concat(syms.map(symLabel)).concat(['Hübe', 'Tabl.', 'Besonderheiten']), rows)
       : null, rows.length ? '' : 'keine Werte'));
   }
 
@@ -2676,7 +2764,7 @@ const PC = {
   gelb: '#8F6404', gelbBand: '#FBF2DC',
   rot: '#B3261E', rotBand: '#FBE9E7',
   s1: '#1F5FAE', s2: '#C04C1E',
-  q1: '#E3EDFB', q2: '#9CC0EE', q3: '#3D7FD0', q4: '#17406F',
+  q1: '#E3EDFB', q2: '#9CC0EE', q3: '#3D7FD0', q4: '#17406F', s3: '#5B4293',
   wash: '#F1EFEB', accent: '#2D5546'
 };
 
@@ -2936,16 +3024,16 @@ Report.prototype.table = function (cols, rows, opt) {
 Report.prototype.week = function (monday) {
   const d = this.d, syms = activeSymptoms();
   const LBL = 13, colW = (CW - LBL) / 7;
-  const hDow = 4.2, hDate = 3.6, hTime = 3.6, RH = 3.3, RS = 3.9, hMed = 4, hNote = 5.4;
+  const hDow = 4.2, hDate = 3.6, hTime = 3.6, RH = 3.3, RS = 3.9, hMed = 4, hPill = 4, hNote = 5.4;
   const gridH = PEF_ROWS * RH;
-  const blockH = hDow + hDate + hTime + gridH + syms.length * RS + hMed + hNote;
+  const blockH = hDow + hDate + hTime + gridH + syms.length * RS + hMed + hPill + hNote;
   this.need(blockH + 7);
 
   const d0 = this.y;
   d.text(M_L, d0 + 2.8, 'Woche ' + deDate(monday) + ' – ' + deDate(addDays(monday, 6)), { size: 7.5, bold: true });
   const top = d0 + 4.4;
   const yDow = top, yDate = yDow + hDow, yTime = yDate + hDate, yGrid = yTime + hTime;
-  const ySym = yGrid + gridH, yMed = ySym + syms.length * RS, yNote = yMed + hMed;
+  const ySym = yGrid + gridH, yMed = ySym + syms.length * RS, yPill = yMed + hMed, yNote = yPill + hPill;
   const bot = yNote + hNote;
   const gx = M_L + LBL;
   const scale = (v) => {
@@ -3009,6 +3097,8 @@ Report.prototype.week = function (monday) {
     const dd = dayOf(ds);
     d.text(x0 + colW / 2, yMed + hMed / 2 + 1, dd.puffs ? String(dd.puffs) : '–',
       { size: 6, bold: true, align: 'center', color: dd.puffs ? PC.s2 : PC.ink3 });
+    d.text(x0 + colW / 2, yPill + hPill / 2 + 1, dd.pills ? String(dd.pills) : '–',
+      { size: 6, bold: true, align: 'center', color: dd.pills ? PC.s3 : PC.ink3 });
     const bes = [(dd.triggers || []).join(', '), dd.note].filter(Boolean).join(' · ');
     if (bes) d.text(x0 + colW / 2, yNote + hNote / 2 + 0.9, fitText(bes, colW - 1.5, 4.6), { size: 4.6, color: PC.ink2, align: 'center' });
   }
@@ -3024,9 +3114,11 @@ Report.prototype.week = function (monday) {
   /* Rahmen und Zeilenbeschriftung */
   d.line(gx, ySym, M_L + CW, ySym, PC.lineStrong, 0.3);
   d.line(gx, yMed, M_L + CW, yMed, PC.lineStrong, 0.3);
+  d.line(gx, yPill, M_L + CW, yPill, PC.line, 0.15);
   d.line(gx, yNote, M_L + CW, yNote, PC.line, 0.15);
   d.line(gx, yGrid, M_L + CW, yGrid, PC.lineStrong, 0.3);
   d.text(M_L + 0.5, yMed + hMed / 2 + 1, 'Hübe', { size: 4.8, color: PC.ink2, bold: true });
+  d.text(M_L + 0.5, yPill + hPill / 2 + 1, 'Tabl.', { size: 4.8, color: PC.ink2, bold: true });
   d.text(M_L + 0.5, yNote + hNote / 2 + 0.9, 'Notiz', { size: 4.8, color: PC.ink2, bold: true });
   d.rect(gx, yDow, CW - LBL, bot - yDow, null, PC.lineStrong, 0.3);
   this.y = bot + 4;
@@ -3190,6 +3282,8 @@ function pdfReport(from, to, name) {
     const avgVar = varis.length ? varis.reduce((a, b) => a + b, 0) / varis.length : null;
     const puffs = days.reduce((a, x) => a + (dayOf(x).puffs || 0), 0);
     const puffDays = days.filter((x) => (dayOf(x).puffs || 0) > 0).length;
+    const pills = days.reduce((a, x) => a + (dayOf(x).pills || 0), 0);
+    const pillDays = days.filter((x) => (dayOf(x).pills || 0) > 0).length;
     const symFree = days.filter((x) => measOf(x).length > 0 && !dayHasSym(x)).length;
     const zc = { gruen: 0, gelb: 0, rot: 0 };
     ms.forEach((m) => { const z = zoneOf(m.pef); if (z) zc[z]++; });
@@ -3201,7 +3295,8 @@ function pdfReport(from, to, name) {
         ['Mittlerer Peak-Flow', avg ? avg + ' l/min' + (S.set.best ? ' (' + Math.round(avg / S.set.best * 100) + ' % des Bestwerts)' : '') : '–', 'Spanne', mn ? mn + ' – ' + mx + ' l/min' : '–'],
         ['Mittlere Tagesvariabilität', avgVar !== null ? avgVar.toFixed(1) + ' %' : '–', 'Tage über 20 %', varis.filter((v) => v > 20).length + ' von ' + varis.length],
         ['Messungen im grünen Bereich', ms.length ? zc.gruen + ' (' + Math.round(zc.gruen / ms.length * 100) + ' %)' : '–', 'gelb / rot', ms.length ? zc.gelb + ' / ' + zc.rot : '–'],
-        ['Symptomfreie Tage', symFree + ' von ' + measured, 'Bedarfsmedikation', puffs + ' Hübe an ' + puffDays + ' Tagen']
+        ['Symptomfreie Tage', symFree + ' von ' + measured, 'Bedarfsmedikation', puffs + ' Hübe an ' + puffDays + ' Tagen'],
+        ['Allergie-Medikation', pills + ' Tabletten an ' + pillDays + ' Tagen', '', '']
       ]);
   }
 
@@ -3212,7 +3307,7 @@ function pdfReport(from, to, name) {
     const last = mondayOf(to);
     while (mon <= last) { R.week(mon); mon = addDays(mon, 7); }
     R.need(8);
-    d.text(M_L, R.y + 2.5, 'Messpunkte als × im zutreffenden Kästchen, innerhalb der Woche verbunden. Rasterfarbe: Ampel-Schema auf Basis des persönlichen Bestwerts.', { size: 5.6, color: PC.ink3 });
+    d.text(M_L, R.y + 2.5, 'Messpunkte als × im zutreffenden Kästchen, innerhalb der Woche verbunden. Rasterfarbe: Ampel-Schema auf Basis des persönlichen Bestwerts. Zeile Hübe: Bedarfsmedikation, Zeile Tabl.: Allergie-Medikation.', { size: 5.6, color: PC.ink3 });
     R.y += 6;
   }
 
@@ -3225,6 +3320,7 @@ function pdfReport(from, to, name) {
 
     const varSeries = days.map((x) => ({ d: x, st: dayStats(x) })).filter((o) => o.st && o.st.n >= 2).map((o) => ({ d: o.d, v: o.st.variability }));
     const medSeries = days.map((x) => ({ d: x, v: dayOf(x).puffs || 0 }));
+    const pillSeries = days.map((x) => ({ d: x, v: dayOf(x).pills || 0 }));
     R.need(44);
     const halfW = (CW - 8) / 2;
     d.text(M_L, R.y + 2.4, 'Tagesvariabilität', { size: 7, bold: true, color: PC.ink2 });
@@ -3232,6 +3328,12 @@ function pdfReport(from, to, name) {
     const y1 = R.chartBars(M_L, R.y + 4, halfW, 30, varSeries, PC.s1, '%', 20);
     const y2 = R.chartBars(M_L + halfW + 8, R.y + 4, halfW, 30, medSeries, PC.s2, '', 0, true);
     R.y = Math.max(y1, y2) + 4;
+
+    if (pillSeries.some((o) => o.v > 0)) {
+      R.need(44);
+      d.text(M_L, R.y + 2.4, 'Allergie-Medikation (Tabletten)', { size: 7, bold: true, color: PC.ink2 });
+      R.y = R.chartBars(M_L, R.y + 4, halfW, 30, pillSeries, PC.s3, '', 0, true) + 4;
+    }
 
     if (activeSymptoms().length) {
       R.need(activeSymptoms().length * 4.6 + 20);
@@ -3266,14 +3368,14 @@ function pdfReport(from, to, name) {
     const cols = [{ t: 'Datum', w: 16 }, { t: 'Zeit', w: 9, align: 'right' }, { t: 'l/min', w: 10, align: 'right' },
       { t: '% Best.', w: 10, align: 'right' }, { t: 'Bereich', w: 12 }]
       .concat(syms.map((s) => ({ t: symLabel(s), w: 12 })))
-      .concat([{ t: 'Hübe', w: 8, align: 'right' }, { t: 'Besonderheiten', w: 22 }]);
+      .concat([{ t: 'Hübe', w: 8, align: 'right' }, { t: 'Tabl.', w: 8, align: 'right' }, { t: 'Besonderheiten', w: 20 }]);
     const rows = measIn(from, to).map((m) => {
       const f0 = measOf(m.date)[0], first = f0 && f0.id === m.id;
       const dd = dayOf(m.date), z = zoneOf(m.pef);
       return [deDate(m.date), m.time, String(m.pef || '–'), pctOfBest(m.pef) !== null ? pctOfBest(m.pef) + ' %' : '–',
         z ? { t: ZONE_LABEL[z], color: PC[z], bold: true } : '–']
         .concat(syms.map((s) => SEV[((m.sym || {})[s.id]) || 0]))
-        .concat([first ? String(dd.puffs || 0) : '', first ? (dd.note || '') : '']);
+        .concat([first ? String(dd.puffs || 0) : '', first ? String(dd.pills || 0) : '', first ? (dd.note || '') : '']);
     });
     if (rows.length) R.table(cols, rows, { size: 6.2, rh: 4.4 });
     else { R.need(8); d.text(M_L, R.y + 3, 'Keine Messwerte im Zeitraum.', { size: 7.2, color: PC.ink3 }); R.y += 7; }
@@ -3330,10 +3432,17 @@ function openMeas(date, id) {
   $('#mNote').value = m ? (m.note || '') : '';
   $('#mDelete').hidden = !m;
   const sym = m ? (m.sym || {}) : {};
-  $('#mSymptoms').innerHTML = activeSymptoms().map((s) =>
-    '<div class="sym-row"><span class="sym-name">' + esc(s.label) + '</span><div class="scale" data-sym="' + s.id + '">' +
-    SEV.map((lbl, i) => '<button type="button" data-v="' + i + '" aria-pressed="' + ((sym[s.id] || 0) === i ? 'true' : 'false') + '">' + esc(lbl) + '</button>').join('') +
-    '</div></div>').join('');
+  /* Je Gruppe ein eigener Abschnitt mit Überschrift; leere Gruppen entfallen. */
+  $('#mSymptoms').innerHTML = SYM_GROUPS.map((g) => {
+    const list = activeSymptomsOf(g.id);
+    if (!list.length) return '';
+    return '<div style="margin-bottom:14px">' +
+      '<div class="sec-label" style="margin-bottom:6px">' + esc(g.label) + '</div>' +
+      list.map((s) =>
+        '<div class="sym-row"><span class="sym-name">' + esc(s.label) + '</span><div class="scale" data-sym="' + s.id + '">' +
+        SEV.map((lbl, i) => '<button type="button" data-v="' + i + '" aria-pressed="' + ((sym[s.id] || 0) === i ? 'true' : 'false') + '">' + esc(lbl) + '</button>').join('') +
+        '</div></div>').join('') + '</div>';
+  }).join('');
   $('#mSymptoms').onclick = (e) => {
     const b = e.target.closest('[data-v]'); if (!b) return;
     const wrap = b.closest('[data-sym]');
@@ -3391,10 +3500,11 @@ async function delMeas() {
    ============================================================================ */
 let dayEdit = null;
 function openDay(date) {
-  dayEdit = Object.assign({ date, puffs: 0, note: '', triggers: [] }, dayOf(date));
+  dayEdit = Object.assign({ date, puffs: 0, pills: 0, note: '', triggers: [] }, dayOf(date));
   dayEdit.triggers = (dayEdit.triggers || []).slice();
   $('#dayTitle').textContent = 'Tagesangaben · ' + deDate(date);
   $('#dPuffVal').textContent = dayEdit.puffs || 0;
+  $('#dPillVal').textContent = dayEdit.pills || 0;
   $('#dNote').value = dayEdit.note || '';
   renderTriggerChips($('#dTriggers'), dayEdit.triggers, (arr) => { dayEdit.triggers = arr; });
   $('#dlgDay').showModal();
@@ -3455,13 +3565,13 @@ async function exportJSON() {
 async function exportCSV() {
   const syms = activeSymptoms();
   const head = ['Datum', 'Uhrzeit', 'PeakFlow_l_min', 'Prozent_Bestwert', 'Bereich']
-    .concat(syms.map((s) => symLabel(s))).concat(['Huebe_Bedarf', 'Ausloeser', 'Besonderheiten']);
+    .concat(syms.map((s) => symLabel(s))).concat(['Huebe_Bedarf', 'Tabletten_Allergie', 'Ausloeser', 'Besonderheiten']);
   const rows = S.meas.slice().sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time)).map((m) => {
     const first = measOf(m.date)[0] && measOf(m.date)[0].id === m.id;
     const d = dayOf(m.date); const z = zoneOf(m.pef);
     return [m.date, m.time, m.pef || '', pctOfBest(m.pef) === null ? '' : pctOfBest(m.pef), z ? ZONE_LABEL[z] : '']
       .concat(syms.map((s) => SEV[((m.sym || {})[s.id]) || 0]))
-      .concat([first ? (d.puffs || 0) : '', first ? (d.triggers || []).join('; ') : '', first ? (d.note || '') : '']);
+      .concat([first ? (d.puffs || 0) : '', first ? (d.pills || 0) : '', first ? (d.triggers || []).join('; ') : '', first ? (d.note || '') : '']);
   });
   const csv = [head].concat(rows).map((r) => r.map((c) => {
     const s = String(c == null ? '' : c);
@@ -3621,6 +3731,13 @@ function wire() {
   };
   $('#puffPlus').onclick = () => bump(1);
   $('#puffMinus').onclick = () => bump(-1);
+  const bumpPill = async (n) => {
+    const d = dayOf(todayISO());
+    d.pills = Math.max(0, (d.pills || 0) + n);
+    await saveDay(d); renderAll();
+  };
+  $('#pillPlus').onclick = () => bumpPill(1);
+  $('#pillMinus').onclick = () => bumpPill(-1);
   let noteT = null;
   $('#besonderheiten').addEventListener('input', (e) => {
     clearTimeout(noteT);
@@ -3630,6 +3747,8 @@ function wire() {
   /* Dialog Tagesangaben */
   $('#dPuffPlus').onclick = () => { dayEdit.puffs = (dayEdit.puffs || 0) + 1; $('#dPuffVal').textContent = dayEdit.puffs; };
   $('#dPuffMinus').onclick = () => { dayEdit.puffs = Math.max(0, (dayEdit.puffs || 0) - 1); $('#dPuffVal').textContent = dayEdit.puffs; };
+  $('#dPillPlus').onclick = () => { dayEdit.pills = (dayEdit.pills || 0) + 1; $('#dPillVal').textContent = dayEdit.pills; };
+  $('#dPillMinus').onclick = () => { dayEdit.pills = Math.max(0, (dayEdit.pills || 0) - 1); $('#dPillVal').textContent = dayEdit.pills; };
   $('#dSave').onclick = async () => { dayEdit.note = $('#dNote').value.trim(); await saveDay(dayEdit); $('#dlgDay').close(); toast('Tagesangaben gespeichert.'); renderAll(); };
 
   /* Selbsttest */

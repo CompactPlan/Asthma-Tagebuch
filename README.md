@@ -1,6 +1,6 @@
 # Asthma-Tagebuch
 
-*Version 1.0.0 · Stand 18.09.2026*
+*Version 1.1.0 · Stand 28.09.2026*
 
 Ein Asthma-Tagebuch als einzelne HTML-Datei. Peak-Flow-Werte, Symptomstärke,
 Bedarfsmedikation und Besonderheiten werden täglich erfasst, im Kalender
@@ -12,19 +12,25 @@ Peak-Flow-Raster von 100 bis 800 l/min, die vier Symptome Husten, Atemnot,
 Auswurf und Beschwerden bei Anstrengung in vier Stufen (kein(e) · wenig ·
 mittel · stark), Anzahl der Hübe der Bedarfsmedikation, Besonderheiten sowie
 ein Selbsttest zur Asthma-Kontrolle alle vier Wochen. Engegefühl lässt sich
-als fünftes Symptom hinzuschalten.
+als fünftes Asthma-Symptom hinzuschalten.
+
+Ergänzend erfasst die App den allergischen Anteil: Schnupfen als eigenes
+Allergie-Symptom und die Anzahl der Tabletten der Allergie-Medikation je Tag.
 
 ## Funktionen
 
 - **Kalender** mit Ampel-Farbcodierung je Tag, Tagesdetail und Nacherfassung
 - **Messung erfassen** mit sofortiger Einordnung nach dem Ampel-Schema
 - **Auswertung**: Peak-Flow-Verlauf (Morgen/Abend), Zonenverteilung,
-  Tagesvariabilität, Symptomverlauf, Bedarfsmedikation, Selbsttest, Auslöser
+  Tagesvariabilität, Symptomverlauf, Bedarfs- und Allergie-Medikation,
+  Selbsttest, Auslöser
 - **PDF-Report** als echte Vektor-PDF im Format A4 mit Wochenprotokoll,
   Kennzahlen, Verlaufsdiagrammen und Seitenzählung
 - **Bestwert-Assistent** für die 14-tägige Bestimmung des persönlichen Bestwerts
 - **Messzeiten, Medikation und Auslöser** frei konfigurierbar, mit Hinweis auf
   noch offene Messungen beim Öffnen der App
+- **Allergie-Dokumentation**: eigener Tageszähler für Tabletten, Schnupfen als
+  Allergie-Symptom, eigene Markierung im Kalender
 - **Export und Import** als JSON, Messwerte zusätzlich als CSV
 - **Anleitung und häufige Fragen** sowie eine **Datenschutzerklärung** in der App
 - Heller und dunkler Modus nach Systemeinstellung, Druckausgabe immer hell
@@ -52,6 +58,14 @@ gesichert werden.
 
 > **Hinweis:** Exportierte JSON- oder CSV-Dateien enthalten Gesundheitsdaten.
 > Sie gehören nicht in dieses oder ein anderes Repository.
+
+## Änderungen
+
+**1.1.0 — 28.09.2026** · Allergie-Medikation als zweiter Tageszähler,
+Schnupfen als Allergie-Symptom, eigene Kalender-Markierung, Aufnahme beider
+Angaben in Auswertung, Report und Exporte.
+
+**1.0.0 — 18.09.2026** · Erstfassung.
 
 ## Haftungsausschluss
 
